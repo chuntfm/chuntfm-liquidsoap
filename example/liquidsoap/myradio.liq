@@ -58,7 +58,7 @@ end
 # inputs configuration
 
 input_list = [
-  {name="stream", is_autofallback=true, port=10000,password=environment.get("LS_STREAM_PASSWORD"),on_connect=on_harbor_connect,on_disconnect=on_harbor_disconnect},
+  {name="stream", is_autofallback=true, port=42600,password=environment.get("LS_STREAM_PASSWORD"),on_connect=on_harbor_connect,on_disconnect=on_harbor_disconnect},
   #{name="override_caller1", is_autofallback=false, port=10004,password=environment.get("LS_STREAM_PASSWORD")},
   ]
 

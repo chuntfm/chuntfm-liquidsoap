@@ -41,10 +41,10 @@ output.icecast(
   %ffmpeg(format="mp3",%audio(codec="libmp3lame",compression_level=2,samplerate=48000,b="128k",channels=2),id3v2_version=0),
   jukeboxstream)
 
-  output.icecast(
-    host=icecast_host,
-    port=icecast_port,
-    password=icecast_password,
-    mount="streamtest",
-    %ffmpeg(format="mp3",%audio(codec="libmp3lame",compression_level=2,samplerate=48000,b="128k",channels=2),id3v2_version=0),
-    jukeboxstream)
+output.icecast(
+  host=icecast_host,
+  port=icecast_port,
+  password=icecast_password,
+  mount="streamtest",
+  %ffmpeg(format="mp3",%audio(codec="libmp3lame",compression_level=2,samplerate=48000,b="128k",channels=2),id3v2_version=0),
+  livetest)
