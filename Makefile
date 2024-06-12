@@ -43,6 +43,10 @@ start: ## Start everything
 		docker network create chuntfm-liquidsoap; \
 	else \
 		echo "Network chuntfm-liquidsoap already exists"; \
+
+	if [ ! -d "/var/archive" ]; then
+		ln -s ./archive /var/archive
+	fi
 	fi
 	@docker compose up -d
 	@docker compose ps

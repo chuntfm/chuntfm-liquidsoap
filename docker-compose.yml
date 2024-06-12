@@ -37,7 +37,7 @@ services:
     volumes:
     - ./example/liquidsoap/:/conf/:ro
     - ./scripts/transcoder/:/scripts/transcoder/:ro
-    - ./archive:/archive/:rw
+    - /var/archive:/archive/:rw
     - ./fallback:/fallback/:rw
     - ./example/jingles:/jingles/:ro
 
@@ -349,6 +349,7 @@ services:
     volumes:
     - ./example/liquidsoap/:/conf/:ro
     - ./scripts/transcoder/:/scripts/transcoder/:ro
+    
     environment:
       ICECAST_PASSWORD: ${ICECAST_PASSWORD:-secret}
       ICECAST_HOSTNAME: ${ICECAST_HOSTNAME:-icecast}
