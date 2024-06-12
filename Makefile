@@ -38,15 +38,21 @@ reload-streamers: ## Update containers if needed and restart source-mystreamersu
 	@docker compose logs -f
 
 start: ## Start everything
-## Ensure the Docker network exists
+	# check for network directory shared between liquidsoap and nginx
 	if [ -z "`docker network ls | grep chuntfm-liquidsoap`" ]; then \
 		docker network create chuntfm-liquidsoap; \
 	else \
 		echo "Network chuntfm-liquidsoap already exists"; \
-
-	if [ ! -d "/var/archive" ]; then
-		ln -s ./archive /var/archive
 	fi
+
+	# check for archive directory shared between liquidsoap and nginx
+	if [ ! -d "~/chuntfm-archive" ]; then \
+		mkdir ~/chuntfm-archive; \
+	fi
+
+	# check for prerec directory shared between liquidsoap and nginx
+	if [ ! -d "~/chuntfm-prerec" ]; then \
+		mkdir ~/chuntfm-prerec; \
 	fi
 	@docker compose up -d
 	@docker compose ps

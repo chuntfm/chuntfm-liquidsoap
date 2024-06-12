@@ -37,7 +37,7 @@ services:
     volumes:
     - ./example/liquidsoap/:/conf/:ro
     - ./scripts/transcoder/:/scripts/transcoder/:ro
-    - /var/archive:/archive/:rw
+    - ~/chuntfm-archive:/archive/:rw
     - ./fallback:/fallback/:rw
     - ./example/jingles:/jingles/:ro
 
