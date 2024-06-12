@@ -37,6 +37,11 @@ def post_livesource(request, response) =
   end
 end
 
+def get_djconnected(_, response) =
+  response.json({dj_connected = dj_connected()})
+end
+
 harbor.http.register(port=harbor_http_port, method="GET", "/readiness", get_readiness)
 harbor.http.register(port=harbor_http_port, method="GET", "/livesource", get_livesource)
 harbor.http.register(port=harbor_http_port, method="POST", "/livesource", post_livesource)
+harbor.http.register(port=harbor_http_port, method="GET", "/djconnected", get_djconnected)

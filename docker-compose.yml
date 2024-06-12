@@ -7,8 +7,7 @@ services:
 
   # Run liquidsoap and create "myradio" stream
   liquidsoap-myradio:
-    env_file:
-      - secrets.env
+   
     command:
     - /conf/myradio.liq
     - /scripts/transcoder/00-live.liq
@@ -29,6 +28,12 @@ services:
     - 10004:10004/tcp
     - 10005:10005/tcp
     - 10006:10006/tcp
+    environment:
+      ICECAST_PASSWORD: ${ICECAST_PASSWORD:-secret}
+      ICECAST_HOSTNAME: ${ICECAST_HOSTNAME:-icecast}
+      FRONTEND_URL_POST_STATUS: ${FRONTEND_URL_POST_STATUS}
+      LS_STREAM_PASSWORD: ${LS_STREAM_PASSWORD}
+      LS_JUKEBOX_PASSWORD: ${LS_JUKEBOX_PASSWORD}
     volumes:
     - ./example/liquidsoap/:/conf/:ro
     - ./scripts/transcoder/:/scripts/transcoder/:ro
@@ -182,8 +187,6 @@ services:
   # Icecast
   icecast:
     container_name: icecast
-    env_file:
-    - secrets.env
     networks:
     - chuntfm-liquidsoap
     
@@ -192,12 +195,18 @@ services:
     image: libretime/icecast
     ports:
     - 8000:8000
+    environment:
+      ICECAST_SOURCE_PASSWORD: ${ICECAST_SOURCE_PASSWORD:-secret}
+      ICECAST_ADMIN_PASSWORD: ${ICECAST_ADMIN_PASSWORD:-secret}
+      ICECAST_PASSWORD: ${ICECAST_PASSWORD:-secret}
+      ICECAST_RELAY_PASSWORD: ${ICECAST_RELAY_PASSWORD:-secret}
+      ICECAST_HOSTNAME: ${ICECAST_HOSTNAME:-icecast}
+      ICECAST_MAX_SOURCES: 10
 
   # HLS (nginx)
   hls:
     container_name: hls
-    env_file:
-      - secrets.env
+    
     expose:
     - "8080"
     image: nginx:alpine
@@ -217,8 +226,7 @@ services:
   # Dashboards
   grafana:
     container_name: grafana
-    env_file:
-      - secrets.env
+    
     
     depends_on:
     - prometheus
@@ -329,8 +337,7 @@ services:
 
   # Test validity of liquidsoap configurations
   liquidsoap-test-transcoder-stereo:
-    env_file:
-      - secrets.env
+  
     command:
     - -c
     - /conf/myradio.liq
@@ -342,6 +349,12 @@ services:
     volumes:
     - ./example/liquidsoap/:/conf/:ro
     - ./scripts/transcoder/:/scripts/transcoder/:ro
+    environment:
+      ICECAST_PASSWORD: ${ICECAST_PASSWORD:-secret}
+      ICECAST_HOSTNAME: ${ICECAST_HOSTNAME:-icecast}
+      FRONTEND_URL_POST_STATUS: ${FRONTEND_URL_POST_STATUS}
+      LS_STREAM_PASSWORD: ${LS_STREAM_PASSWORD}
+      LS_JUKEBOX_PASSWORD: ${LS_JUKEBOX_PASSWORD}
 
   #liquidsoap-test-transcoder-surround:
   #  command:
@@ -363,10 +376,15 @@ services:
     - /scripts/streamer/00-live.liq
     container_name: liquidsoap-test-streamer-stereo
     image: savonet/liquidsoap:v2.2.5
-    env_file:
-      - secrets.env
+
     networks:
     - chuntfm-liquidsoap
+    environment:
+      ICECAST_PASSWORD: ${ICECAST_PASSWORD:-secret}
+      ICECAST_HOSTNAME: ${ICECAST_HOSTNAME:-icecast}
+      FRONTEND_URL_POST_STATUS: ${FRONTEND_URL_POST_STATUS}
+      LS_STREAM_PASSWORD: ${LS_STREAM_PASSWORD}
+      LS_JUKEBOX_PASSWORD: ${LS_JUKEBOX_PASSWORD}
     volumes:
     - ./example/liquidsoap/:/conf/:ro
     - ./scripts/streamer/:/scripts/streamer/:ro

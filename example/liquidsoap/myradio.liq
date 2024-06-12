@@ -11,9 +11,10 @@ liquidsoap_log_level = 3
 frontend_url = environment.get("FRONTEND_URL_POST_STATUS")
 
 going_to_live = ref(false)
+dj_connected = ref("False")
 def on_harbor_connect(headers) =
   going_to_live := true
-  #print(headers)
+  dj_connected := "True"
   #print(headers['ice-name'])
   
   j = json()
@@ -31,6 +32,7 @@ end
 
 def on_harbor_disconnect() =
   going_to_live := false
+  dj_connected := "False"
   j = json()
   j.add("keyword","womby")
   j.add("connection_stop","true")
