@@ -12,7 +12,10 @@
 input_sources = list.map(mk_source_mp3, input_list)
 replay_sources = list.map(mk_replay_source,input_list_restream)
 #replay_sources = list.map(mk_replay_source_from_file, input_list_restream_files)
-input_sources = list.append(input_sources, replay_sources)
+#input_sources = list.append(input_sources, replay_sources)
+randomjingle = single("./jingle/jinglevc.wav")
+
+
 
 print("input_sources: " ^ string(input_sources))
 stream_source = list.hd(list.filter(fun(s) -> s.name == "stream", input_sources))
@@ -47,28 +50,49 @@ def is_playing(n) =
 end
 
 def mk_switch_source(s) =
+  log("mk_switch_source: #{s}")
   (is_playing(s.name), s.source)
 end
 
 
-def crossfade(a,b)
-  print("crossfade with sources:")
-  print(string(a))
-  print(string(b))
-  if going_to_live() then
-    add(normalize=true,
-        [ sequence([ blank(duration=2.),
-          fade.in(duration=5.,b) ]),
-          fade.out(duration=5.,a) ])
-  else
-    print("not going to live")
-    randomjingle = playlist.once("/jingles")
-    add(normalize=true,
-    [ sequence([randomjingle, blank()]),
-      sequence([ blank(duration=5.),
-      fade.in(duration=7.,b) ])])
-  end
-end
+#def crossfade(a,b)
+#  print("crossfade with sources:")
+#  print(string(a))
+#  print(string(b))
+#  s = if going_to_live() then
+#    print("going to live")
+#    #add(normalize=false,
+#    #    [ sequence([ blank(duration=2.),
+#    #      fade.in(duration=5.,b) ]),
+#    #      fade.out(duration=5.,a) ])
+#    randomjingle = single("/jingles/chuntFMjingleFuture.mp3")
+#    add(normalize=false,
+#    [sequence([fade.out(duration=5.,a), randomjingle, fade.in(duration=5.,b)])
+#    ])
+#  else
+#    print("not going to live")
+#    #randomjingle = playlist.once("/jingles")
+#    randomjingle = single("/jingles/chuntFMjingleFuture.mp3")
+#    #add(normalize=false,
+#    #[ sequence([randomjingle, blank()]),
+#    #  sequence([ blank(duration=5.),
+#    #  fade.in(duration=7.,b) ])])
+#    add(normalize=false,
+#    [ sequence([randomjingle, fade.in(duration=5.,b)]) ])
+#  end
+#  s
+#end
+
+#def tolive(a,b)
+#  print("going to live")
+# 
+#  add(normalize=false, [
+#    sequence([fade.out(duration=5.,type="sin",a)]),
+#    sequence([blank(duration=5.), once(randomjingle)]),
+#    sequence([blank(duration=8.),fade.in(duration=5.,type="sin",b) ])
+#  ])
+#  
+#end
 
 #randomjingle = playlist.once("/jingles")
 #
@@ -78,6 +102,13 @@ end
 #
 #
 #    sequence([randomjingle,fade.in(duration=3.,type="sin",b) ])
+def log_source_id(pair) =
+  source = snd(pair)
+  log(source.id())
+end
+
+log("Live switch sources:")
+list.iter(log_source_id, list.map(mk_switch_source, input_sources))
 
 live = switch(
   id="switch_live",
@@ -85,7 +116,10 @@ live = switch(
   list.map(mk_switch_source, input_sources)
 )
 
+
+
 def mk_fallback_source(result, s) =
+  log("mk_fallback_source out of: #{s}")
   if s.is_autofallback then
     [...result, (s.source:source(audio=pcm))]
   else
@@ -93,17 +127,60 @@ def mk_fallback_source(result, s) =
   end
 end
 
+def tolive(a,b)
+  print("inside tolive, passed sources are " ^ source.id(a) ^ " and " ^ source.id(b))
+  sourcestring = string(source.id(a))
+  if string.contains(substring="restream",sourcestring) then
+    add(normalize=false, [
+      sequence([fade.out(duration=4.,type="sin",a)]),
+      sequence([blank(duration=4.5),once(single(jingle_vc_path))]),
+      sequence([blank(duration=8.7),fade.in(duration=1.7,type="sin",b)])
+    ])
+  else
+    add(normalize=false, [
+      sequence([fade.out(duration=2.,type="sin",a)]),
+      sequence([blank(duration=4.),fade.in(duration=1.7,type="sin",b)])
+    ])
+  end
+end
+
+
+def tojingle(a,b)
+  print("inside tojingle, passed sources are " ^ source.id(a) ^ " and " ^ source.id(b))
+  sequence([a, blank(duration=1.7),b])
+end
+
+
+def torestream(a,b)
+  print("inside torestream, passed sources are " ^ source.id(a) ^ " and " ^ source.id(b))
+  add(normalize=false,[
+    sequence([
+      fade.in(duration=1.7,type="sin",b)
+    ])
+  ])
+end
+
+def tosilence(a,b)
+  print("inside tosilence, passed sources are " ^ source.id(a) ^ " and " ^ source.id(b))
+  add(normalize=false,[
+    sequence([
+      fade.out(duration=1.7,type="sin",a),
+      fade.in(duration=1.7,type="sin",b)
+    ])
+  ])
+
+end
 
 
 radio_prod = 
   fallback(
   id="fallback_prod",
   track_sensitive=false,
-  transition_length=20.,
-  transitions=[crossfade, crossfade,crossfade],
+  transition_length=25.,
+  transitions=[tolive, tojingle, torestream, tosilence],
   [
-    (live:source(audio=pcm)),
-    ...list.fold(mk_fallback_source, [], input_sources),
+    (live:source(audio=pcm)), jingle_queue,
+    ...list.fold(mk_fallback_source, [], replay_sources),
     (safe_blank:source(audio=pcm))
   ]
 )

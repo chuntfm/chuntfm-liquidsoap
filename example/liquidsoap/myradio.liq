@@ -30,7 +30,43 @@ def on_harbor_connect(headers) =
 end
 
 
+
+# SRT inputs configuration
+#input_list = [
+#  {name="voieA_caller1", is_autofallback=true, port=10000},
+#  {name="voieA_caller2", is_autofallback=true, port=10001},
+#  {name="voieB_caller1", is_autofallback=true, port=10002},
+#  {name="voieB_caller2", is_autofallback=true, port=10003},
+#  {name="override_caller1", is_autofallback=false, port=10004},
+#  {name="override_caller2", is_autofallback=false, port=10005},
+#  {name="sat_sat1", is_autofallback=true, port=10006},
+#]
+#livesource_state_path = "/state/#{radio_name}.livesourcestate"
+
+# inputs configuration
+jingle_vc_path = "./jingles/jinglevc.wav"
+jingle_ba_path = "./jingles/jingleba.mp3"
+jingle_queue = request.queue(id="jingle_queue")
+
+
+def flush_and_skip()
+  q = jingle_queue.queue()
+  jingle_queue.set_queue([])
+  jingle_queue.skip()
+  list.iter(request.destroy, q)
+end
+
+
+def refill_jingle_queue() =
+  print("refill_jingle_queue")
+  flush_and_skip()
+  jingle_request = request.create(jingle_ba_path)
+  jingle_queue.push(jingle_request)
+  print("Jingles refilled, q is " ^ string(jingle_queue.length()) ^ " ,length is " ^ string(jingle_queue.length()))
+end
+
 def on_harbor_disconnect() =
+  refill_jingle_queue()
   going_to_live := false
   dj_connected := "False"
   j = json()
@@ -45,22 +81,9 @@ def on_harbor_disconnect() =
   log(response)
 
 end
-# SRT inputs configuration
-#input_list = [
-#  {name="voieA_caller1", is_autofallback=true, port=10000},
-#  {name="voieA_caller2", is_autofallback=true, port=10001},
-#  {name="voieB_caller1", is_autofallback=true, port=10002},
-#  {name="voieB_caller2", is_autofallback=true, port=10003},
-#  {name="override_caller1", is_autofallback=false, port=10004},
-#  {name="override_caller2", is_autofallback=false, port=10005},
-#  {name="sat_sat1", is_autofallback=true, port=10006},
-#]
-#livesource_state_path = "/state/#{radio_name}.livesourcestate"
-
-# inputs configuration
 
 input_list = [
-  {name="stream", is_autofallback=true, port=42600,password=environment.get("LS_STREAM_PASSWORD"),on_connect=on_harbor_connect,on_disconnect=on_harbor_disconnect},
+  {name="stream", is_autofallback=false, port=42600,password=environment.get("LS_STREAM_PASSWORD"),on_connect=on_harbor_connect,on_disconnect=on_harbor_disconnect},
   #{name="override_caller1", is_autofallback=false, port=10004,password=environment.get("LS_STREAM_PASSWORD")},
   ]
 

@@ -18,7 +18,7 @@ end
 output.file(%mp3(id3v2=true,bitrate=320), {time.string("/archive/%Y-%m-%d/%Y-%m-%d-%H_%M_%S.mp3")}, stream_source.source,fallible=true)
 
 def crossfadeOn(a,b)
-  add(normalize=true,
+  add(normalize=false,
       [ sequence([ blank(duration=2.),
         fade.in(duration=5.,b) ]),
         fade.out(duration=5.,a) ])
