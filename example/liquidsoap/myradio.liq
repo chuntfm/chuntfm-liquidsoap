@@ -13,6 +13,7 @@ frontend_url = environment.get("FRONTEND_URL_POST_STATUS")
 going_to_live = ref(false)
 dj_connected = ref("False")
 def on_harbor_connect(headers) =
+  print(headers)
   going_to_live := true
   dj_connected := "True"
   #print(headers['ice-name'])

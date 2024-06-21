@@ -13,14 +13,16 @@ input_sources = list.map(mk_source_mp3, input_list)
 replay_sources = list.map(mk_replay_source,input_list_restream)
 #replay_sources = list.map(mk_replay_source_from_file, input_list_restream_files)
 #input_sources = list.append(input_sources, replay_sources)
-randomjingle = single("./jingle/jinglevc.wav")
 
 
 
 print("input_sources: " ^ string(input_sources))
 stream_source = list.hd(list.filter(fun(s) -> s.name == "stream", input_sources))
-#print("stream_source is:")
-#print(stream_source.source.is_ready())
+print("stream_source is:")
+print(stream_source)
+restream_source = list.hd(list.filter(fun(s) -> s.name == "restream", replay_sources))
+print("restream_source is:")
+print(restream_source)
 # Define safe_blank input and its metrics
 safe_blank = blank(id="safe_blank")
 safe_blank = source_tag(safe_blank, "safe_blank")
@@ -231,8 +233,17 @@ def update_is_playing_metrics(metadata) =
      set_is_playing_metric = set_safe_blank_is_playing_metric,
      source                = safe_blank}
   ]
+  restream_sources = [
+    ...replay_sources,
+    {name                  = "safe_blank",
+     is_autofallback       = true,
+     is_ready              = safe_blank.is_ready,
+     set_is_playing_metric = set_safe_blank_is_playing_metric,
+     source                = safe_blank}
+  ]
 
   list.iter(update_metric, sources)
+  list.iter(update_metric, restream_sources)
 end
 
 radio_prod.on_metadata(update_is_playing_metrics)
