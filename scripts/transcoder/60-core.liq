@@ -20,6 +20,7 @@ def mk_source_mp3(s) =
     input.harbor(
       s.name,
       port=s.port,
+      buffer=s.buffer,
       password=s.password,
       on_connect=s.on_connect,
       on_disconnect=s.on_disconnect
@@ -96,8 +97,8 @@ def mk_source_mp3(s) =
   buffered_input =
   buffer(
     id="#{s.name}_buffer",
-    buffer=15.0,
-    max=15.0,
+    buffer=1.0,
+    max=1.0,
     fallible=true,
     srt_input
   )

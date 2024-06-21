@@ -31,9 +31,9 @@ real_live_source = ref("")
 
 
 # Inputs bypassing the whole radio system since we don't care about monitoring jukebox and teststream
-livetest = input.harbor("streamtest",port=42600,password=environment.get("LS_STREAM_PASSWORD"),buffer=10.,max=20.)
+livetest = input.harbor("streamtest",port=42600,password=environment.get("LS_STREAM_PASSWORD"),buffer=8.,max=10.)
 livetest = buffer(mksafe(livetest))
-jukebox = input.harbor("juke",port=8001,password=environment.get("LS_JUKEBOX_PASSWORD"),buffer=5.)
+jukebox = input.harbor("juke",port=8001,password=environment.get("LS_JUKEBOX_PASSWORD"),buffer=2.)
 jukebox = buffer(mksafe(jukebox))
 
 # get the livesourcestate on disk if it exist
@@ -116,7 +116,7 @@ live = switch(
   list.map(mk_switch_source, input_sources)
 )
 
-
+live = limit(normalize(live))
 
 def mk_fallback_source(result, s) =
   log("mk_fallback_source out of: #{s}")
