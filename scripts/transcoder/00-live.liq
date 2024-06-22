@@ -133,11 +133,20 @@ def tolive(a,b)
   print("inside tolive, passed sources are " ^ source.id(a) ^ " and " ^ source.id(b))
   sourcestring = string(source.id(a))
   if string.contains(substring="restream",sourcestring) then
-    add(normalize=false, [
-      sequence([fade.out(duration=4.,type="sin",a)]),
-      sequence([blank(duration=4.5),once(single(jingle_vc_path))]),
-      sequence([blank(duration=8.7),fade.in(duration=1.7,type="sin",b)])
-    ])
+    #add(normalize=false, [
+    #  sequence([fade.out(duration=4.,type="sin",a)]),
+    #  sequence([blank(duration=4.5),once(single(jingle_vc_path))]),
+    #  sequence([blank(duration=8.7),fade.in(duration=1.7,type="sin",b)])
+    #])
+    sequence(
+      [
+        add(normalize=false, [
+          sequence([fade.out(duration=2.,type="sin",a)]),
+          sequence([blank(duration=4.5),once(single(jingle_vc_path))]),
+        ]),
+        b
+      ]
+    )
   else
     add(normalize=false, [
       sequence([fade.out(duration=2.,type="sin",a)]),
